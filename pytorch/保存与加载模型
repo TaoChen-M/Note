@@ -1,0 +1,28 @@
+模型类
+保存模型
+    保存整个网络
+        torch.save(net,path)
+    仅保存参数，速度快，占据空间少
+        torch.save(net.state_dict(),path)
+加载模型(个人文件路径中)
+    针对保存整个网络的
+        model=torch.load(path)
+        注意：包含加载模型的.py模块和包含save的.py模块必须在同一级目录下
+    针对仅保存参数的
+        必须根据model保存好的模型声明model
+        model=modelname(such as model=models.vgg16)
+        model=torch.load_state_dict(torch.load(path))
+    加载pytorch中，内置的模型，resnet、vgg这些
+        import torchvision.models as models
+        model=models.resnet34(pretrained=True/False)
+    因为预训练模型，fc层是在imagenet训练的分类是1000类。但是我们实际训练的过程中用不到那么多，可以进行修改
+        model.fc=nn.Linear(2048,num)
+    同样的也可以进行卷积层修改
+        model.conv1=nn.Conv2D(*****)
+打印model的形状  
+    summary(model,(channel,H,W)
+
+训练环境
+    使用GPU
+        if torch.cuda.is_available:
+            model=model.cuda()

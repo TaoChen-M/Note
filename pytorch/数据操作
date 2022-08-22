@@ -1,0 +1,3 @@
+array和image之间的互转（使用PIL读取图片格式）
+    array-->image: img=Image.fromarray(np.uint(img))
+    image-->array: img=np.asarray(image)

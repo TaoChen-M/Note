@@ -1,0 +1,17 @@
+model可视化
+    表格形式显示
+        from torchsummary import summary
+        summary(model,(channel,H,W)
+
+    tensorboard显示网络：
+        from torch.utils import tensorboard
+        with tensorboard.SummaryWriter('dir') as writer:
+            writer.add_graph(model,[torch.rand(num,num,num,num)])
+        显示loss、acc等：
+            writer.add_scalar('train/loss',loss,epoch) epoch是横坐标
+            writer.add_scalar('train/acc',acc,epoch) 如果想让这几个显示在同一个标签下，一级标签train要相同
+        将train 和valid 的loss显示在同一个表中：
+            writer.add_scalar('epoch/loss',{'train':train_loss,'valid':valid_loss},epoch)
+
+    网页上显示：
+        终端运行：tensorboard --logdir=dir(上面保存log的文件)

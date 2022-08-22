@@ -1,0 +1,79 @@
+项目格式
+├── checkpoints/
+├── data/
+│   ├── __init__.py
+│   ├── dataset.py
+│   └── get_data.sh
+├── models/
+│   ├── __init__.py
+│   ├── AlexNet.py
+│   ├── BasicModule.py
+│   └── ResNet34.py
+└── utils/
+│   ├── __init__.py
+│   └── visualize.py
+├── config.py
+├── main.py
+├── requirements.txt
+├── README.md
+
+第一步关于数据的加载（笔记主要是基于https://github.com/chenyuntc/pytorch-book/tree/master/chapter06-best_practice）
+dataset.py：
+    主要三个函数：__init__(self,root,transforms,train=True,test=False)
+                __getitem__(self,item)
+                __len__(self)
+
+    __init__函数：
+        参数列表：self,root,transforms,train,test
+        步骤：
+            1、将图片路径保存到数组中，（并根据需要进行排序）
+               imgs=[os.path.join(root,img)for img in os.listdir(root)]
+            2、根据设定的随机种子使用numpy函数，进行打乱
+            3、划分训练集和验证集 比例7：3
+            4、数据转换操作    表转化normalize,   mean  std
+                             训练集要，测试集和验证集不用
+
+    __getitem__函数：
+        参数列表：self,item
+        步骤：
+            1、定义label,分训练集和测试集
+            2、根据路径数组打开图片，并调用transform
+            3、return data label
+
+    __len__函数：
+        参数列表：self
+        步骤：
+            1、return 图片数量
+
+basicModule.py:主要定义了模型的save和load函数，供主函数调用
+    __init__函数：
+        参数列表：self,opt=None
+        步骤：
+            1、super(basicModule,self) 继承nn.Module 函数
+            2、self.module_name 定义模型的名称
+
+    __load__函数：
+        参数列表：self,path
+            步骤：
+                1、self.load_state_dict(torch.load(path)) 通过路径加载模型
+
+    __save__函数：
+        参数列表:self,name=None
+            步骤：
+                1、定义保存的路径和权重文件名称
+                2、torch.save(self.state_dict,name)
+                3、return name
+
+main.py:定义了的train val test 函数
+    def train(**kwargs):训练
+        步骤：
+            1、定义网络
+            2、定义数据
+            3、定义损失函数、优化函数
+            4、计算评价指标
+            5、开始训练：
+                ①训练网络
+                ②可视化各种指标
+                ③计算在验证集上的指标
+    def val(model,dataloader):辅助训练
+    def test(**kwagrs):inference
