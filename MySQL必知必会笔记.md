@@ -32,7 +32,7 @@ select * from products
 
 使用select检索某一列时，会将该列中所有行的数据都检索出来，如下图所示
 
-![](C:\Users\xz\Desktop\研究生\博客笔记\mysql\Distinct.png)
+![](/images/Distinct.png)
 
 如何检索行值不同的列，使用DISTINCT关键字，只返回行值不同的列
 
@@ -94,7 +94,7 @@ LIMIT语句应该位于ORDER BY语句之后
 
 使用select语句时可以用where设置搜索条件
 
-![](C:\Users\xz\Desktop\研究生\博客笔记\mysql\where.png)
+![](/images/where.png)
 
 用BETWEEN关键字的时候，需要范围的开始值和结束值，比如
 
@@ -185,10 +185,10 @@ select prod_id from products where prod_name regexp '[123] ton'
 
 如果想要匹配‘.’这样的特殊字符如何匹配呢，上面也提到‘.’可以匹配任何字符
 
-使用’\\\‘进行转义
+使用’///‘进行转义
 
 ```sql
-select prod_id from products where prod_name regexp '\\.'
+select prod_id from products where prod_name regexp '//.'
 ```
 
 ## 拼接字段和别名
@@ -201,7 +201,7 @@ select prod_id from products where prod_name regexp '\\.'
 select concat(vend_name,' (',vend_country,' )') as vend_title from products order by vend_name
 ```
 
-![](mysql/concat.png)
+![](/images/concat.png)
 
 ## 计算字段
 
@@ -211,11 +211,11 @@ MySQL还可以对检索出来的数据进行数学计算，包括+、*、-、/
 select prod_id,quantity,item_price,quantity*item_price as expanded_price from products where order_num=20005
 ```
 
-![](mysql/计算字段.png)
+![](/images/计算字段.png)
 
 ## 聚集函数
 
-![](mysql/聚集函数.png)
+![](/images/聚集函数.png)
 
 ```sql
 select avg(prod_price) as avg_price from products;
@@ -242,7 +242,7 @@ select avg(distinct prod_price) as avg_price from products;//只计算价格不�
 select vend_id,count(*) as num_prods from products group by vend_id//统计每个vend_id的数据有多少个
 ```
 
-![](mysql/group.png)
+![](/images/group.png)
 
 ### 过滤分组
 
@@ -252,7 +252,7 @@ select vend_id,count(*) as num_prods from products group by vend_id//统计每�
 select vend_id,count(*) as num_prods from products where prod_price>=10 group by vend_id having count(*) >=2
 ```
 
-![](mysql/having.png)
+![](/images/having.png)
 
 ### 分组和排序
 
@@ -264,7 +264,7 @@ select order_num,sum(quantity*item_price) as ordertotal from orderitems group by
 
 ### SELECT子句顺序
 
-![](mysql/select子句顺序.png)
+![](/images/select子句顺序.png)
 
 ## 联结
 
@@ -294,7 +294,7 @@ select vend_name,prod_name,prod_price from ventors inner join products on vecdor
 select vend_id,prod_id,prod_price from products where prod_price <= 5 UNION select vend_id,prod_id,prod_price from products where vend_id in (1001,1002)
 ```
 
-![](mysql/UNION.png)
+![](/images/UNION.png)
 
 UNION指示MySQL执行两条语句，并把输出组合成单个查询结果集
 
@@ -383,7 +383,7 @@ delete从表中删除所有的行，但是不删除表本身，如果希望删�
 - 新表的名字，在关键字create table之后给出
 - 列的名字和定义，用逗号隔开
 
-![](mysql/create.png)
+![](/images/create.png)
 
 主键值必须唯一，如果使用单个列，则它的值必须唯一；如果使用多个列，则这些列的组合值必须唯一
 
@@ -446,7 +446,7 @@ rollback只能在一个事务内使用（在执行一条start transaction之后�
 
 一般的SQL编辑语句都是直接在表上执行和编写，这就是隐含提交，但是在事务处理当中不存在隐含提交，必须使用COMMIT语句
 
-![](mysql/commit.png)
+![](/images/commit.png)
 
 最后的commit语句仅在上述两条语句不出错的情况下对表进行更改。
 
