@@ -351,11 +351,11 @@ int main(){
 
 #### epoll模式
 
-epoll将用户关心的文件描述符上的事件放在内核的一个事件表中因此就不要像select或者poll那样每次都需要传入文件描述符集或者事件集，但是epoll需要使用一个额外的文件描述符来标识这个内核中的时间表，使用`int epoll_create(int size)`来进行创建。`size`参数并不起作用，只是个内核一个提示，告诉事件表可能会有多大，这个函数返回的文件描述符将会用做其他所有的epoll系统调用的第一个参数。
+`epoll`将用户关心的文件描述符上的事件放在内核的一个事件表中因此就不要像`select`或者`poll`那样每次都需要传入文件描述符集或者事件集，但是`epoll`需要使用一个额外的文件描述符来标识这个内核中的时间表，使用`int epoll_create(int size)`来进行创建。`size`参数并不起作用，只是个内核一个提示，告诉事件表可能会有多大，这个函数返回的文件描述符将会用做其他所有的`epoll`系统调用的第一个参数。
 
-epoll操作过程具有三个接口，如下所示：
+`epoll`操作过程具有三个接口，如下所示：
 
-`int epoll_ctl(int epfd,int op,int fd,struct epoll_event *event)`其中epfd表示创建epoll时返回的文件描述符，op表示将要对socket fd执行的操作，主要有三种，EPOLL_CTL_ADD（增加新的fd到epfd中），EPOLL_CTL_MOD（修改已经注册的fd），EPOLL_CTL_DEL（从epfd中删除fd）。第三个参数是需要监听的fd，event表示需要监听什么事情，和poll的基本相同，但是epoll具有两个额外的事件类型EPOLLET和EPOLLONESHOT这两个是epoll高效运作的关键。
+`int epoll_ctl(int epfd,int op,int fd,struct epoll_event *event)`其中`epfd`表示创建`epoll`时返回的文件描述符，`op`表示将要对`socket fd`执行的操作，主要有三种：`EPOLL_CTL_ADD`（增加新的`fd`到`epfd`中），`EPOLL_CTL_MOD`（修改已经注册的`fd`），`EPOLL_CTL_DEL`（从`epfd`中删除`fd`）。第三个参数是需要监听的`fd`，`event`表示需要监听什么事情，和`poll`的基本相同，但是`epoll`具有两个额外的事件类型`EPOLLET`和`EPOLLONESHOT`这两个是`epoll`高效运作的关键。
 
 ```C++
 struct epoll_event{
@@ -366,7 +366,7 @@ struct epoll_event{
 
 `data`成员用来存储用户数据
 
-`epoll_wait(int epfd,struct epoll_event* events,int maxevents,int timeout)`，epfd是创建的epoll文件标识符，epoll会将发生的事件复制到创建好的events数组中，max_events通常和预分配的events一样大，timeout是指没有事件发生时的最大等待时间，单位是毫秒。
+`epoll_wait(int epfd,struct epoll_event* events,int maxevents,int timeout)`，`epfd`是创建的`epoll`文件标识符，`epoll`会将发生的事件复制到创建好的`events`数组中，`max_events`通常和预分配的`events`一样大，`timeout`是指没有事件发生时的最大等待时间，单位是毫秒。
 
 ```C++
 int main(){
@@ -408,8 +408,10 @@ LT：Level Trigger，水平触发；默认的工作方式
 
 ET：Edge Trigger，边缘触发；高效工作方式
 
-使用LT模式下，当`epoll_wait()`检测到其上有事件发生将其通知给应用程序，应用程序可以不立即处理这个事件，那么下次调用`epoll_wait()`的时候，会再次向应用程序通知此事件，一直循环往复直到最终这个事件被处理。如果采用的是ET模式，那么将事件通知给应用程序之后必须立即处理该事件，因为后续的`epoll_wait()`将不再向应用程序通知这个事件
+使用LT模式下，当`epoll_wait()`检测到其上有事件发生将其通知给应用程序，应用程序可以不立即处理这个事件，那么下次调用`epoll_wait()`的时候，会再次向应用程序通知此事件，一直循环往复直到最终这个事件被处理。如果采用的是ET模式，那么将事件通知给应用程序之后必须立即处理该事件，因为后续的`epoll_wait()`将不再向应用程序通知这个事件。由此可见，ET模式降低了同一个epoll事件被重复触发的次数。
 
 #### EPOLLONESHOT
 
-即使是使用ET模式，一个socket上的事件也有可能被触发多次，主要是出现在并发程序的时候。比如一个线程在读取完某个socket的数据之后开始进行处理，处理过程中又有新的数据可读，此时另外一个线程被唤醒读取这些数据，于是就会出现两个线程同时处理一个socket的情况，这不是我们期望的。一个socket在任意时刻都只能被一个线程处理。
+即使是使用ET模式，一个socket上的事件也有可能被触发多次，主要是出现在并发程序的时候。比如一个线程在读取完某个socket的数据之后开始进行处理，处理过程中又有新的数据可读（EPOLLIN再次被触发），此时另外一个线程被唤醒读取这些数据，于是就会出现两个线程同时处理一个socket的情况，这不是我们期望的。一个socket在任意时刻都只能被一个线程处理。
+
+对于注册了EPOLLONESHOT事件的文件描述符，操作系统最多触发其上注册的一个可读、可写或者异常事件，并且只触发一次。这样当一个线程在处理某个socket时，别的线程是无法操作该socket的。但是，注册了EPOLLONESHOT的socket一旦被某个线程处理完毕之后，就应该重置EPOLLONESHOT事件，这样保证该socket下次可读时，其EPOLLIN被触发能够被别的工作来线程处理。
